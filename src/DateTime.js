@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import DaysView from './views/DaysView';
 import MonthsView from './views/MonthsView';
 import YearsView from './views/YearsView';
@@ -50,6 +51,7 @@ export default class Datetime extends React.Component {
 		renderDay: TYPES.func,
 		renderMonth: TYPES.func,
 		renderYear: TYPES.func,
+		calendarPortalTarget: TYPES.element,
 	}
 
 	static defaultProps = {
@@ -83,49 +85,83 @@ export default class Datetime extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.state = this.getInitialState();
+		this.inputRef = React.createRef();
+		this.clickOutside = { main: false, portal: false };
 	}
 
-	render() {
-		return (
-			<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
-				{ this.renderInput() }
-				<div className="rdtPicker">
-					{ this.renderView() }
-				</div>
-			</ClickableWrapper>
-		);
-	}
+  renderPicker = () => {
+  	const renderInnerPicker = () => (
+  		<div className="rdtPicker">
+  			{ this.renderView() }
+  		</div>
+  	);
 
-	renderInput() {
-		if ( !this.props.input ) return;
+  	// if we have a portal target, render under that
+  	if (this.props.calendarPortalTarget) {
+  		const inputElement = this.inputRef.current;
+  		if (inputElement && inputElement instanceof HTMLElement) {
+  			const rect = inputElement.getBoundingClientRect();
+  			const elHeight = rect.bottom - rect.top;
+  			const yOffset = rect.top + window.pageYOffset + elHeight;
+  			const xOffset = rect.left;
+  			const style = {
+  				position: 'absolute',
+  				top: yOffset,
+  				left: xOffset,
+  			};
+  			return createPortal(
+  				<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutsidePortal } style={style}>
+  				  { renderInnerPicker() }
+  				</ClickableWrapper>
+  			, this.props.calendarPortalTarget);
+  		}
+  		return null;
+  	}
 
-		const finalInputProps = {
-			type: 'text',
-			className: 'form-control',
-			value: this.getInputValue(),
-			...this.props.inputProps,
-			onFocus: this._onInputFocus,
-			onChange: this._onInputChange,
-			onKeyDown: this._onInputKeyDown,
-			onClick: this._onInputClick
-		};
+  	// not portalling
+  	return <>{ renderInnerPicker() }</>;
+  }
 
-		if ( this.props.renderInput ) {
-			return (
-				<div>
-					{ this.props.renderInput( finalInputProps, this._openCalendar, this._closeCalendar ) }
-				</div>
-			);
-		}
+  render() {
+  	return (
+  		<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
+  			{ this.renderInput() }
+  			{ this.renderPicker() }
+  		</ClickableWrapper>
+  	);
+  }
 
-		return (
-			<input { ...finalInputProps } />
-		);
-	}
+  renderInput() {
+  	if ( !this.props.input ) return;
 
-	renderView() {
-		return this.props.renderView( this.state.currentView, this._renderCalendar );
-	}
+  	const finalInputProps = {
+  		type: 'text',
+  		className: 'form-control',
+  		value: this.getInputValue(),
+  		...this.props.inputProps,
+  		onFocus: this._onInputFocus,
+  		onChange: this._onInputChange,
+  		onKeyDown: this._onInputKeyDown,
+  		onClick: this._onInputClick,
+  		ref: this.inputRef,
+  	};
+
+  	if ( this.props.renderInput ) {
+  		return (
+  			<div>
+  				{ this.props.renderInput( finalInputProps, this._openCalendar, this._closeCalendar ) }
+  			</div>
+  		);
+  	}
+
+  	return (
+  		<input { ...finalInputProps } />
+  	);
+  }
+
+  renderView() {
+  	return this.props.renderView( this.state.currentView, this._renderCalendar );
+  }
 
 	_renderCalendar = () => {
 		const props = this.props;
@@ -419,157 +455,179 @@ export default class Datetime extends React.Component {
 
 	_handleClickOutside = () => {
 		let props = this.props;
+		let clickOutside = this.clickOutside;
 
-		if ( props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
+  	if (props.calendarPortalTarget) {
+  		clickOutside.main = true;
+  		setTimeout(() => {clickOutside.main = false;}, 1);
+  		if (!clickOutside.portal) return;
+  	}
+
+		if (props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
 			this._closeCalendar();
 		}
 	}
 
-	localMoment( date, format, props ) {
-		props = props || this.props;
-		let m = null;
+  _handleClickOutsidePortal = () => {
+  	let props = this.props;
+  	let clickOutside = this.clickOutside;
 
-		if (props.utc) {
-			m = moment.utc(date, format, props.strictParsing);
-		} else if (props.displayTimeZone) {
-			m = moment.tz(date, format, props.displayTimeZone);
-		} else {
-			m = moment(date, format, props.strictParsing);
-		}
+  	if (props.calendarPortalTarget) {
+  		clickOutside.portal = true;
+  		setTimeout(() => {clickOutside.portal = false;}, 1);
+  		if (!clickOutside.main) return;
+  	}
 
-		if ( props.locale )
-			m.locale( props.locale );
-		return m;
-	}
+  	if ( props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
+  		this._closeCalendar();
+  	}
+  }
 
-	checkTZ() {
-		const { displayTimeZone } = this.props;
-		if ( displayTimeZone && !this.tzWarning && !moment.tz ) {
-			this.tzWarning = true;
-			log('displayTimeZone prop with value "' + displayTimeZone +  '" is used but moment.js timezone is not loaded.', 'error');
-		}
-	}
+  localMoment( date, format, props ) {
+  	props = props || this.props;
+  	let m = null;
 
-	componentDidUpdate( prevProps ) {
-		if ( prevProps === this.props ) return;
+  	if (props.utc) {
+  		m = moment.utc(date, format, props.strictParsing);
+  	} else if (props.displayTimeZone) {
+  		m = moment.tz(date, format, props.displayTimeZone);
+  	} else {
+  		m = moment(date, format, props.strictParsing);
+  	}
 
-		let needsUpdate = false;
-		let thisProps = this.props;
+  	if ( props.locale )
+  		m.locale( props.locale );
+  	return m;
+  }
 
-		['locale', 'utc', 'displayZone', 'dateFormat', 'timeFormat'].forEach( function(p) {
-			prevProps[p] !== thisProps[p] && (needsUpdate = true);
-		});
+  checkTZ() {
+  	const { displayTimeZone } = this.props;
+  	if ( displayTimeZone && !this.tzWarning && !moment.tz ) {
+  		this.tzWarning = true;
+  		log('displayTimeZone prop with value "' + displayTimeZone +  '" is used but moment.js timezone is not loaded.', 'error');
+  	}
+  }
 
-		if ( needsUpdate ) {
-			this.regenerateDates();
-		}
+  componentDidUpdate( prevProps ) {
+  	if ( prevProps === this.props ) return;
 
-		if ( (thisProps.value || thisProps.value === '') && thisProps.value !== prevProps.value ) {
-			if (thisProps.value) {
-				this.setViewDate( thisProps.value );
-			} else {
-				this.setViewDate( new Date());
-			}
-			// edit internal value in state when value prop changes.
-			this.setState({
-				inputValue: thisProps.value,
-				selectedDate: this.getSelectedDate(),
-			});
-		}
+  	let needsUpdate = false;
+  	let thisProps = this.props;
 
-		this.checkTZ();
-	}
+  	['locale', 'utc', 'displayZone', 'dateFormat', 'timeFormat'].forEach( function(p) {
+  		prevProps[p] !== thisProps[p] && (needsUpdate = true);
+  	});
 
-	regenerateDates() {
-		const props = this.props;
-		let viewDate = this.state.viewDate.clone();
-		let selectedDate = this.state.selectedDate && this.state.selectedDate.clone();
+  	if ( needsUpdate ) {
+  		this.regenerateDates();
+  	}
 
-		if ( props.locale ) {
-			viewDate.locale( props.locale );
-			selectedDate &&	selectedDate.locale( props.locale );
-		}
-		if ( props.utc ) {
-			viewDate.utc();
-			selectedDate &&	selectedDate.utc();
-		}
-		else if ( props.displayTimeZone ) {
-			viewDate.tz( props.displayTimeZone );
-			selectedDate &&	selectedDate.tz( props.displayTimeZone );
-		}
-		else {
-			viewDate.locale();
-			selectedDate &&	selectedDate.locale();
-		}
+  	if ( (thisProps.value || thisProps.value === '') && thisProps.value !== prevProps.value ) {
+  		if (thisProps.value) {
+  			this.setViewDate( thisProps.value );
+  		} else {
+  			this.setViewDate( new Date());
+  		}
+  		// edit internal value in state when value prop changes.
+  		this.setState({
+  			inputValue: thisProps.value,
+  			selectedDate: this.getSelectedDate(),
+  		});
+  	}
 
-		let update = { viewDate: viewDate, selectedDate: selectedDate};
-		if ( selectedDate && selectedDate.isValid() ) {
-			update.inputValue = selectedDate.format( this.getFormat('datetime') );
-		}
+  	this.checkTZ();
+  }
 
-		this.setState( update );
-	}
+  regenerateDates() {
+  	const props = this.props;
+  	let viewDate = this.state.viewDate.clone();
+  	let selectedDate = this.state.selectedDate && this.state.selectedDate.clone();
 
-	getSelectedDate() {
-		if ( this.props.value === undefined ) return this.state.selectedDate;
-		let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
-		return selectedDate && selectedDate.isValid() ? selectedDate : false;
-	}
+  	if ( props.locale ) {
+  		viewDate.locale( props.locale );
+  		selectedDate &&	selectedDate.locale( props.locale );
+  	}
+  	if ( props.utc ) {
+  		viewDate.utc();
+  		selectedDate &&	selectedDate.utc();
+  	}
+  	else if ( props.displayTimeZone ) {
+  		viewDate.tz( props.displayTimeZone );
+  		selectedDate &&	selectedDate.tz( props.displayTimeZone );
+  	}
+  	else {
+  		viewDate.locale();
+  		selectedDate &&	selectedDate.locale();
+  	}
 
-	getInitialInputValue( selectedDate ) {
-		const props = this.props;
-		if ( props.inputProps.value )
-			return props.inputProps.value;
+  	let update = { viewDate: viewDate, selectedDate: selectedDate};
+  	if ( selectedDate && selectedDate.isValid() ) {
+  		update.inputValue = selectedDate.format( this.getFormat('datetime') );
+  	}
 
-		if ( selectedDate && selectedDate.isValid() )
-			return selectedDate.format( this.getFormat('datetime') );
+  	this.setState( update );
+  }
 
-		if ( props.value && typeof props.value === 'string' )
-			return props.value;
+  getSelectedDate() {
+  	if ( this.props.value === undefined ) return this.state.selectedDate;
+  	let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
+  	return selectedDate && selectedDate.isValid() ? selectedDate : false;
+  }
 
-		if ( props.initialValue && typeof props.initialValue === 'string' )
-			return props.initialValue;
+  getInitialInputValue( selectedDate ) {
+  	const props = this.props;
+  	if ( props.inputProps.value )
+  		return props.inputProps.value;
 
-		return '';
-	}
+  	if ( selectedDate && selectedDate.isValid() )
+  		return selectedDate.format( this.getFormat('datetime') );
 
-	getInputValue() {
-		let selectedDate = this.getSelectedDate();
-		return selectedDate ? selectedDate.format( this.getFormat('datetime') ) : this.state.inputValue;
-	}
+  	if ( props.value && typeof props.value === 'string' )
+  		return props.value;
 
-	/**
+  	if ( props.initialValue && typeof props.initialValue === 'string' )
+  		return props.initialValue;
+
+  	return '';
+  }
+
+  getInputValue() {
+  	let selectedDate = this.getSelectedDate();
+  	return selectedDate ? selectedDate.format( this.getFormat('datetime') ) : this.state.inputValue;
+  }
+
+  /**
 	 * Set the date that is currently shown in the calendar.
 	 * This is independent from the selected date and it's the one used to navigate through months or days in the calendar.
 	 * @param dateType date
 	 * @public
 	 */
-	setViewDate( date ) {
-		let logError = function() {
-			return log( 'Invalid date passed to the `setViewDate` method: ' + date );
-		};
+  setViewDate( date ) {
+  	let logError = function() {
+  		return log( 'Invalid date passed to the `setViewDate` method: ' + date );
+  	};
 
-		if ( !date ) return logError();
+  	if ( !date ) return logError();
 
-		let viewDate;
-		if ( typeof date === 'string' ) {
-			viewDate = this.localMoment(date, this.getFormat('datetime') );
-		}
-		else {
-			viewDate = this.localMoment( date );
-		}
+  	let viewDate;
+  	if ( typeof date === 'string' ) {
+  		viewDate = this.localMoment(date, this.getFormat('datetime') );
+  	}
+  	else {
+  		viewDate = this.localMoment( date );
+  	}
 
-		if ( !viewDate || !viewDate.isValid() ) return logError();
-		this.setState({ viewDate: viewDate });
-	}
+  	if ( !viewDate || !viewDate.isValid() ) return logError();
+  	this.setState({ viewDate: viewDate });
+  }
 
-	/**
+  /**
 	 * Set the view currently shown by the calendar. View modes shipped with react-datetime are 'years', 'months', 'days' and 'time'.
 	 * @param TYPES.string mode
 	 */
-	navigate( mode ) {
-		this._showView( mode );
-	}
+  navigate( mode ) {
+  	this._showView( mode );
+  }
 
 	_onInputFocus = e => {
 		if ( !this.callHandler( this.props.inputProps.onFocus, e ) ) return;
@@ -633,7 +691,7 @@ class ClickOutBase extends React.Component {
 
 	render() {
 		return (
-			<div className={ this.props.className } ref={ this.container }>
+			<div className={ this.props.className } ref={ this.container } style={ this.props.style }>
 				{ this.props.children }
 			</div>
 		);
