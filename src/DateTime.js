@@ -51,7 +51,8 @@ export default class Datetime extends React.Component {
 		renderDay: TYPES.func,
 		renderMonth: TYPES.func,
 		renderYear: TYPES.func,
-		calendarPortalTarget: TYPES.element,
+		renderPicker: TYPES.func,
+		renderCalendarWithOwnClickable: TYPES.bool,
 	}
 
 	static defaultProps = {
@@ -77,6 +78,8 @@ export default class Datetime extends React.Component {
 		closeOnTab: true,
 		closeOnClickOutside: true,
 		renderView: ( _, renderFunc ) => renderFunc(),
+		renderPicker: (renderFunc) => renderFunc(),
+		renderCalendarWithOwnClickable: false,
 	}
 
 	// Make moment accessible through the Datetime class
@@ -85,40 +88,27 @@ export default class Datetime extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.state = this.getInitialState();
-		this.inputRef = React.createRef();
-		this.clickOutside = { main: false, portal: false };
+		this.clickOutsideState = { input: false, picker: false };
 	}
 
-  renderPicker = () => {
+	renderPicker() {
+		return this.props.renderPicker(this._renderPicker);
+	}
+
+  _renderPicker = () => {
   	const renderInnerPicker = () => (
   		<div className="rdtPicker">
   			{ this.renderView() }
   		</div>
   	);
 
-  	// if we have a portal target, render under that
-  	if (this.props.calendarPortalTarget) {
-  		const inputElement = this.inputRef.current;
-  		if (inputElement && inputElement instanceof HTMLElement) {
-  			const rect = inputElement.getBoundingClientRect();
-  			const elHeight = rect.bottom - rect.top;
-  			const yOffset = rect.top + window.pageYOffset + elHeight;
-  			const xOffset = rect.left;
-  			const style = {
-  				position: 'absolute',
-  				top: yOffset,
-  				left: xOffset,
-  			};
-  			return createPortal(
-  				<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutsidePortal } style={style}>
-  				  { renderInnerPicker() }
-  				</ClickableWrapper>
-  			, this.props.calendarPortalTarget);
-  		}
-  		return null;
+  	if (this.props.renderCalendarWithOwnClickable) {
+  		return (
+  					<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutsidePicker }>
+  						{ renderInnerPicker() }
+  					</ClickableWrapper>
+  		);
   	}
-
-  	// not portalling
   	return <>{ renderInnerPicker() }</>;
   }
 
@@ -143,7 +133,6 @@ export default class Datetime extends React.Component {
   		onChange: this._onInputChange,
   		onKeyDown: this._onInputKeyDown,
   		onClick: this._onInputClick,
-  		ref: this.inputRef,
   	};
 
   	if ( this.props.renderInput ) {
@@ -455,12 +444,12 @@ export default class Datetime extends React.Component {
 
 	_handleClickOutside = () => {
 		let props = this.props;
-		let clickOutside = this.clickOutside;
+		let clickOutsideState = this.clickOutsideState;
 
-  	if (props.calendarPortalTarget) {
-  		clickOutside.main = true;
-  		setTimeout(() => {clickOutside.main = false;}, 1);
-  		if (!clickOutside.portal) return;
+  	if (props.renderCalendarWithOwnClickable) {
+  		clickOutsideState.input = true;
+  		setTimeout(() => {clickOutsideState.input = false;}, 1);
+  		if (!clickOutsideState.picker) return;
   	}
 
 		if (props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
@@ -468,14 +457,14 @@ export default class Datetime extends React.Component {
 		}
 	}
 
-  _handleClickOutsidePortal = () => {
+  _handleClickOutsidePicker = () => {
   	let props = this.props;
-  	let clickOutside = this.clickOutside;
+  	let clickOutsideState = this.clickOutsideState;
 
-  	if (props.calendarPortalTarget) {
-  		clickOutside.portal = true;
-  		setTimeout(() => {clickOutside.portal = false;}, 1);
-  		if (!clickOutside.main) return;
+  	if (props.renderCalendarWithOwnClickable) {
+  		clickOutsideState.picker = true;
+  		setTimeout(() => {clickOutsideState.picker = false;}, 1);
+  		if (!clickOutsideState.input) return;
   	}
 
   	if ( props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
@@ -691,7 +680,7 @@ class ClickOutBase extends React.Component {
 
 	render() {
 		return (
-			<div className={ this.props.className } ref={ this.container } style={ this.props.style }>
+			<div className={ this.props.className } ref={ this.container }>
 				{ this.props.children }
 			</div>
 		);
