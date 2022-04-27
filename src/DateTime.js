@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import React from 'react';
-import { createPortal } from 'react-dom';
 import DaysView from './views/DaysView';
 import MonthsView from './views/MonthsView';
 import YearsView from './views/YearsView';
@@ -497,6 +496,12 @@ export default class Datetime extends React.Component {
   	}
   }
 
+  componentDidMount() {
+  	if (this.props.renderCalendarWithOwnClickable) {
+  	  document.body.addEventListener('gbst-close-datetime', this._closeCalendar);
+  	}
+  }
+
   componentDidUpdate( prevProps ) {
   	if ( prevProps === this.props ) return;
 
@@ -525,6 +530,10 @@ export default class Datetime extends React.Component {
   	}
 
   	this.checkTZ();
+  }
+
+  componentWillUnmount() {
+  	document.body.removeEventListener('gbst-close-datetime', this._closeCalendar);
   }
 
   regenerateDates() {
