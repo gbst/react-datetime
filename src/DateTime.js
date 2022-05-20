@@ -533,7 +533,7 @@ export default class Datetime extends React.Component {
 	}
 
 	componentWillUnmount() {
-		document.body.removeEventListener('gbst-close-datetime', this._closeCalendar);
+		document.body.removeEventListener('gel-table-onscroll', this._closeCalendar);
 	}
 
 	regenerateDates() {
