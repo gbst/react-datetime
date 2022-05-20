@@ -112,12 +112,12 @@ export default class Datetime extends React.Component {
 	}
 
 	render() {
-  	return (
+		return (
 			<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
 				{ this.renderInput() }
 				{ this.renderPicker() }
 			</ClickableWrapper>
-  	);
+		);
 	}
 
 	renderInput() {
@@ -445,11 +445,11 @@ export default class Datetime extends React.Component {
 		let props = this.props;
 		let clickOutsideState = this.clickOutsideState;
 
-  	if (props.renderCalendarWithOwnClickable) {
-  		clickOutsideState.input = true;
-  		setTimeout(() => {clickOutsideState.input = false;}, 1);
-  		if (!clickOutsideState.picker) return;
-  	}
+		if (props.renderCalendarWithOwnClickable) {
+			clickOutsideState.input = true;
+			setTimeout(() => {clickOutsideState.input = false;}, 1);
+			if (!clickOutsideState.picker) return;
+		}
 
 		if (props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
 			this._closeCalendar();
@@ -492,7 +492,7 @@ export default class Datetime extends React.Component {
 		const { displayTimeZone } = this.props;
 		if ( displayTimeZone && !this.tzWarning && !moment.tz ) {
 			this.tzWarning = true;
-			log('displayTimeZone prop with value "' + displayTimeZone +  '" is used but moment.js timezone is not loaded.', 'error');
+			log('displayTimeZone prop with value "' + displayTimeZone + '" is used but moment.js timezone is not loaded.', 'error');
 		}
 	}
 
@@ -529,7 +529,7 @@ export default class Datetime extends React.Component {
 			});
 		}
 
-  	this.checkTZ();
+		this.checkTZ();
 	}
 
 	componentWillUnmount() {
@@ -580,18 +580,18 @@ export default class Datetime extends React.Component {
 		if ( selectedDate && selectedDate.isValid() )
 			return selectedDate.format( this.getFormat('datetime') );
 
-  	if ( props.value && typeof props.value === 'string' )
-  		return props.value;
+		if ( props.value && typeof props.value === 'string' )
+			return props.value;
 
-  	if ( props.initialValue && typeof props.initialValue === 'string' )
-  		return props.initialValue;
+		if ( props.initialValue && typeof props.initialValue === 'string' )
+			return props.initialValue;
 
-  	return '';
+		return '';
 	}
 
 	getInputValue() {
-  	let selectedDate = this.getSelectedDate();
-  	return selectedDate ? selectedDate.format( this.getFormat('datetime') ) : this.state.inputValue;
+		let selectedDate = this.getSelectedDate();
+		return selectedDate ? selectedDate.format( this.getFormat('datetime') ) : this.state.inputValue;
 	}
 
 	/**
