@@ -498,7 +498,7 @@ export default class Datetime extends React.Component {
 
   componentDidMount() {
   	if (this.props.renderCalendarWithOwnClickable) {
-  	  document.body.addEventListener('gbst-close-datetime', this._closeCalendar);
+  	  document.body.addEventListener('gel-table-onscroll', this._closeCalendar);
   	}
   }
 
