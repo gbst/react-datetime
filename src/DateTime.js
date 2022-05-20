@@ -94,62 +94,62 @@ export default class Datetime extends React.Component {
 		return this.props.renderPicker(this._renderPicker);
 	}
 
-  _renderPicker = () => {
-  	const renderInnerPicker = () => (
-  		<div className="rdtPicker">
-  			{ this.renderView() }
-  		</div>
-  	);
+	_renderPicker = () => {
+		const renderInnerPicker = () => (
+			<div className="rdtPicker">
+				{ this.renderView() }
+			</div>
+		);
 
-  	if (this.props.renderCalendarWithOwnClickable) {
-  		return (
-  					<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutsidePicker }>
-  						{ renderInnerPicker() }
-  					</ClickableWrapper>
-  		);
-  	}
-  	return <>{ renderInnerPicker() }</>;
-  }
+		if (this.props.renderCalendarWithOwnClickable) {
+			return (
+				<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutsidePicker }>
+					{ renderInnerPicker() }
+				</ClickableWrapper>
+			);
+		}
+		return <>{ renderInnerPicker() }</>;
+	}
 
-  render() {
+	render() {
   	return (
-  		<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
-  			{ this.renderInput() }
-  			{ this.renderPicker() }
-  		</ClickableWrapper>
+			<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
+				{ this.renderInput() }
+				{ this.renderPicker() }
+			</ClickableWrapper>
   	);
-  }
+	}
 
-  renderInput() {
-  	if ( !this.props.input ) return;
+	renderInput() {
+		if ( !this.props.input ) return;
 
-  	const finalInputProps = {
-  		type: 'text',
-  		className: 'form-control',
-  		value: this.getInputValue(),
-  		...this.props.inputProps,
-  		onFocus: this._onInputFocus,
-  		onChange: this._onInputChange,
-  		onKeyDown: this._onInputKeyDown,
-  		onClick: this._onInputClick,
-  	};
+		const finalInputProps = {
+			type: 'text',
+			className: 'form-control',
+			value: this.getInputValue(),
+			...this.props.inputProps,
+			onFocus: this._onInputFocus,
+			onChange: this._onInputChange,
+			onKeyDown: this._onInputKeyDown,
+			onClick: this._onInputClick,
+		};
 
-  	if ( this.props.renderInput ) {
-  		return (
-  			<div>
-  				{ this.props.renderInput( finalInputProps, this._openCalendar, this._closeCalendar ) }
-  			</div>
-  		);
-  	}
+		if ( this.props.renderInput ) {
+			return (
+				<div>
+					{ this.props.renderInput( finalInputProps, this._openCalendar, this._closeCalendar ) }
+				</div>
+			);
+		}
 
-  	return (
-  		<input { ...finalInputProps } />
-  	);
-  }
+		return (
+			<input { ...finalInputProps } />
+		);
+	}
 
-  renderView() {
-  	return this.props.renderView( this.state.currentView, this._renderCalendar );
-  }
+	renderView() {
+		return this.props.renderView( this.state.currentView, this._renderCalendar );
+	}
 
 	_renderCalendar = () => {
 		const props = this.props;
@@ -567,18 +567,18 @@ export default class Datetime extends React.Component {
 	}
 
 	getSelectedDate() {
-  	if ( this.props.value === undefined ) return this.state.selectedDate;
-  	let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
-  	return selectedDate && selectedDate.isValid() ? selectedDate : false;
+		if ( this.props.value === undefined ) return this.state.selectedDate;
+		let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
+		return selectedDate && selectedDate.isValid() ? selectedDate : false;
 	}
 
 	getInitialInputValue( selectedDate ) {
-  	const props = this.props;
-  	if ( props.inputProps.value )
-  		return props.inputProps.value;
+		const props = this.props;
+		if ( props.inputProps.value )
+			return props.inputProps.value;
 
-  	if ( selectedDate && selectedDate.isValid() )
-  		return selectedDate.format( this.getFormat('datetime') );
+		if ( selectedDate && selectedDate.isValid() )
+			return selectedDate.format( this.getFormat('datetime') );
 
   	if ( props.value && typeof props.value === 'string' )
   		return props.value;
@@ -601,22 +601,22 @@ export default class Datetime extends React.Component {
 	 * @public
 	 */
 	setViewDate( date ) {
-  	let logError = function() {
-  		return log( 'Invalid date passed to the `setViewDate` method: ' + date );
-  	};
+		let logError = function() {
+			return log( 'Invalid date passed to the `setViewDate` method: ' + date );
+		};
 
-  	if ( !date ) return logError();
+		if ( !date ) return logError();
 
-  	let viewDate;
-  	if ( typeof date === 'string' ) {
-  		viewDate = this.localMoment(date, this.getFormat('datetime') );
-  	}
-  	else {
-  		viewDate = this.localMoment( date );
-  	}
+		let viewDate;
+		if ( typeof date === 'string' ) {
+			viewDate = this.localMoment(date, this.getFormat('datetime') );
+		}
+		else {
+			viewDate = this.localMoment( date );
+		}
 
-  	if ( !viewDate || !viewDate.isValid() ) return logError();
-  	this.setState({ viewDate: viewDate });
+		if ( !viewDate || !viewDate.isValid() ) return logError();
+		this.setState({ viewDate: viewDate });
 	}
 
 	/**
@@ -624,7 +624,7 @@ export default class Datetime extends React.Component {
 	 * @param TYPES.string mode
 	 */
 	navigate( mode ) {
-  	this._showView( mode );
+		this._showView( mode );
 	}
 
 	_onInputFocus = e => {
