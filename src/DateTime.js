@@ -50,6 +50,8 @@ export default class Datetime extends React.Component {
 		renderDay: TYPES.func,
 		renderMonth: TYPES.func,
 		renderYear: TYPES.func,
+		renderPicker: TYPES.func,
+		renderCalendarWithOwnClickable: TYPES.bool,
 	}
 
 	static defaultProps = {
@@ -75,6 +77,8 @@ export default class Datetime extends React.Component {
 		closeOnTab: true,
 		closeOnClickOutside: true,
 		renderView: ( _, renderFunc ) => renderFunc(),
+		renderPicker: (renderFunc) => renderFunc(),
+		renderCalendarWithOwnClickable: false,
 	}
 
 	// Make moment accessible through the Datetime class
@@ -83,15 +87,35 @@ export default class Datetime extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.state = this.getInitialState();
+		this.clickOutsideState = { input: false, picker: false };
+	}
+
+	renderPicker() {
+		return this.props.renderPicker(this._renderPicker);
+	}
+
+	_renderPicker = () => {
+		const renderInnerPicker = () => (
+			<div className="rdtPicker">
+				{ this.renderView() }
+			</div>
+		);
+
+		if (this.props.renderCalendarWithOwnClickable) {
+			return (
+				<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutsidePicker }>
+					{ renderInnerPicker() }
+				</ClickableWrapper>
+			);
+		}
+		return <>{ renderInnerPicker() }</>;
 	}
 
 	render() {
 		return (
 			<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
 				{ this.renderInput() }
-				<div className="rdtPicker">
-					{ this.renderView() }
-				</div>
+				{ this.renderPicker() }
 			</ClickableWrapper>
 		);
 	}
@@ -107,7 +131,7 @@ export default class Datetime extends React.Component {
 			onFocus: this._onInputFocus,
 			onChange: this._onInputChange,
 			onKeyDown: this._onInputKeyDown,
-			onClick: this._onInputClick
+			onClick: this._onInputClick,
 		};
 
 		if ( this.props.renderInput ) {
@@ -419,6 +443,28 @@ export default class Datetime extends React.Component {
 
 	_handleClickOutside = () => {
 		let props = this.props;
+		let clickOutsideState = this.clickOutsideState;
+
+		if (props.renderCalendarWithOwnClickable) {
+			clickOutsideState.input = true;
+			setTimeout(() => {clickOutsideState.input = false;}, 1);
+			if (!clickOutsideState.picker) return;
+		}
+
+		if (props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
+			this._closeCalendar();
+		}
+	}
+
+	_handleClickOutsidePicker = () => {
+		let props = this.props;
+		let clickOutsideState = this.clickOutsideState;
+
+		if (props.renderCalendarWithOwnClickable) {
+			clickOutsideState.picker = true;
+			setTimeout(() => {clickOutsideState.picker = false;}, 1);
+			if (!clickOutsideState.input) return;
+		}
 
 		if ( props.input && this.state.open && props.open === undefined && props.closeOnClickOutside ) {
 			this._closeCalendar();
@@ -446,7 +492,13 @@ export default class Datetime extends React.Component {
 		const { displayTimeZone } = this.props;
 		if ( displayTimeZone && !this.tzWarning && !moment.tz ) {
 			this.tzWarning = true;
-			log('displayTimeZone prop with value "' + displayTimeZone +  '" is used but moment.js timezone is not loaded.', 'error');
+			log('displayTimeZone prop with value "' + displayTimeZone + '" is used but moment.js timezone is not loaded.', 'error');
+		}
+	}
+
+	componentDidMount() {
+		if (this.props.renderCalendarWithOwnClickable) {
+			document.body.addEventListener('gel-table-onscroll', this._closeCalendar);
 		}
 	}
 
@@ -478,6 +530,10 @@ export default class Datetime extends React.Component {
 		}
 
 		this.checkTZ();
+	}
+
+	componentWillUnmount() {
+		document.body.removeEventListener('gel-table-onscroll', this._closeCalendar);
 	}
 
 	regenerateDates() {
