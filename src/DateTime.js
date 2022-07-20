@@ -18,7 +18,7 @@ const TYPES = PropTypes;
 const nofn = function () {};
 const datetype = TYPES.oneOfType([ TYPES.instanceOf(moment), TYPES.instanceOf(Date), TYPES.string ]);
 
-export default class Datetime extends React.Component {
+export default class Datetime extends React.PureComponent {
 	static propTypes = {
 		value: datetype,
 		initialValue: datetype,
@@ -684,7 +684,7 @@ function log( message, method ) {
 	con[ method ]( '***react-datetime:' + message );
 }
 
-class ClickOutBase extends React.Component {
+class ClickOutBase extends React.PureComponent {
 	container = React.createRef();
 
 	render() {
