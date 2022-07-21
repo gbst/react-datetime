@@ -502,6 +502,13 @@ export default class Datetime extends React.PureComponent {
 		}
 	}
 
+	shouldComponentUpdate(nextProps, nextState, nextContext) {
+		console.log('current value', this.props.value);
+		console.log('nextProps value', nextProps.value);
+		console.log('Does it equal?', this.props.value === nextProps.value);
+		return this.props.value !== nextProps.value;
+	}
+
 	componentDidUpdate( prevProps ) {
 		if ( prevProps === this.props ) return;
 
