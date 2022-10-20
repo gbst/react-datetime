@@ -39,7 +39,7 @@ export default class TimeView extends React.Component {
 
 		this.constraints = createConstraints( props.timeConstraints );
 
-		// This component buffers the time part values in the state 
+		// This component buffers the time part values in the state
 		// while the user is pressing down the buttons
 		// and call the prop `setTime` when the buttons are released
 		this.state = this.getTimeParts( props.selectedDate || props.viewDate );
@@ -48,7 +48,7 @@ export default class TimeView extends React.Component {
 	render() {
 		let items = [];
 		const timeParts = this.state;
-		
+
 		this.getCounters().forEach( (c, i) => {
 			if ( i && c !== 'ampm' ) {
 				items.push(
@@ -88,10 +88,10 @@ export default class TimeView extends React.Component {
 
 		if ( type === 'ampm' ) {
 			if ( this.props.timeFormat.indexOf(' A') !== -1 ) {
-				value = this.props.viewDate.format('A');
+				value = (this.props.selectedDate || this.props.viewDate).format('A');
 			}
 			else {
-				value = this.props.viewDate.format('a');
+				value = (this.props.selectedDate || this.props.viewDate).format('a');
 			}
 		}
 
@@ -125,7 +125,7 @@ export default class TimeView extends React.Component {
 			// Only left clicks, thanks
 			return;
 		}
-		
+
 		if ( type === 'ampm' ) return this.toggleDayPart();
 
 		let update = {};
@@ -154,7 +154,7 @@ export default class TimeView extends React.Component {
 
 	toggleDayPart() {
 		let hours = parseInt( this.state.hours, 10 );
-		
+
 		if ( hours >= 12 ) {
 			hours -= 12;
 		}
@@ -184,7 +184,7 @@ export default class TimeView extends React.Component {
 	getCounters() {
 		let counters = [];
 		let format = this.props.timeFormat;
-		
+
 		if ( format.toLowerCase().indexOf('h') !== -1 ) {
 			counters.push('hours');
 			if ( format.indexOf('m') !== -1 ) {
