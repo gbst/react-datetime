@@ -119,7 +119,7 @@ export default class DaysView extends React.Component {
 	renderFooter() {
 		if ( !this.props.timeFormat ) return;
 
-		const date = this.props.viewDate;
+		const date = this.props.selectedDate || this.props.viewDate;
 		return (
 			<tfoot>
 				<tr>

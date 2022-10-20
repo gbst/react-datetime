@@ -520,7 +520,7 @@ export default class Datetime extends React.Component {
 			if (thisProps.value) {
 				this.setViewDate( thisProps.value );
 			} else {
-				this.setViewDate( new Date());
+				this.setViewDate(new Date().setHours(0, 0, 0, 0));
 			}
 			// edit internal value in state when value prop changes.
 			this.setState({
