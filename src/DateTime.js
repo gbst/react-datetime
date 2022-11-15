@@ -430,6 +430,7 @@ export default class Datetime extends React.Component {
 
 	_openCalendar = () => {
 		if ( this.isOpen() ) return;
+		this.setViewDate(this.getSelectedDate() || new Date());
 		this.setState({open: true}, this.props.onOpen );
 	}
 
