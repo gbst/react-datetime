@@ -231,7 +231,9 @@ export default class Datetime extends React.Component {
 
 	getInitialDate() {
 		let m = this.localMoment();
-		m.hour(0).minute(0).second(0).millisecond(0);
+		if (!this.props.timeFormat) {
+			m.hour(0).minute(0).second(0).millisecond(0);
+		}
 		return m;
 	}
 
@@ -430,7 +432,7 @@ export default class Datetime extends React.Component {
 
 	_openCalendar = () => {
 		if ( this.isOpen() ) return;
-		this.setViewDate(this.getSelectedDate() || new Date());
+		this.setViewDate(this.getSelectedDate() || this.getInitialViewDate());
 		this.setState({open: true}, this.props.onOpen );
 	}
 
@@ -521,7 +523,7 @@ export default class Datetime extends React.Component {
 			if (thisProps.value) {
 				this.setViewDate( thisProps.value );
 			} else {
-				this.setViewDate(new Date().setHours(0, 0, 0, 0));
+				this.setViewDate(this.getInitialViewDate());
 			}
 			// edit internal value in state when value prop changes.
 			this.setState({
@@ -642,10 +644,13 @@ export default class Datetime extends React.Component {
 
 		if ( localMoment.isValid() ) {
 			update.selectedDate = localMoment;
-			update.viewDate = localMoment.clone().startOf('month');
+			update.viewDate = localMoment.clone();
 		}
 		else {
-			update.selectedDate = null;
+  		update.selectedDate = null;
+  		if (!value) {
+  			update.viewDate = this.getInitialViewDate();
+  		}
 		}
 
 		this.setState(update);
