@@ -1,10 +1,20 @@
 /* global it, describe, expect */
 
 import React from 'react'; // eslint-disable-line no-unused-vars
-import moment from 'moment';
+import moment from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import localeData from 'dayjs/plugin/localeData';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+
 import utils from './testUtils';
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+
+moment.extend(utc);
+moment.extend(timezone);
+moment.extend(localeData);
+moment.extend(localizedFormat);
 
 Enzyme.configure({adapter: new Adapter()});
 
@@ -35,7 +45,7 @@ describe('with initialViewDate', () => {
 
 	it('UTC value from UTC string', () => {
 		const date = new Date(2000, 0, 15, 2, 2, 2, 2),
-			momentDateUTC = moment.utc(date),
+			momentDateUTC = moment().utc(date),
 			strDateUTC = momentDateUTC.format('L') + ' ' + momentDateUTC.format('LT'),
 			expectedStrDate = momentDateUTC.format('MMMM YYYY'),
 			component = utils.createDatetime({initialViewDate: strDateUTC, utc: true});

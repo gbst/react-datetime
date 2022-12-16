@@ -1,15 +1,27 @@
 /* global it, xit, describe, expect, done, jest */
 
 import React from 'react';
-import moment from 'moment';
-import 'moment/locale/nl';
-import 'moment/locale/sv';
+import moment from 'dayjs';
+import 'dayjs/locale/nl';
+import 'dayjs/locale/sv';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import localeData from 'dayjs/plugin/localeData';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import updateLocale from 'dayjs/plugin/updateLocale';
+
 import _momentTimezone from 'moment-timezone'; // eslint-disable-line
 import utils from './testUtils';
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
-moment.locale('en');
+// moment.locale('en');
+
+moment.extend(utc);
+moment.extend(timezone);
+moment.extend(localeData);
+moment.extend(localizedFormat);
+moment.extend(updateLocale);
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -321,7 +333,7 @@ describe('Datetime', () => {
 	});
 
 	it('sets CSS class on today date', () => {
-		const specificDate = moment(),
+		const specificDate = moment(Date.now()),
 			day = specificDate.date(),
 			component = utils.createDatetime({ initialValue: specificDate })
 		;
@@ -1223,7 +1235,7 @@ describe('Datetime', () => {
 			});
 
 			it('when selecting month', () => {
-				const date = _momentTimezone.tz('2000-03-15T02:02:02.002Z', 'UTC'),
+				const date = timezone.tz('2000-03-15T02:02:02.002Z', 'UTC'),
 					onChangeFn = jest.fn(),
 					component = utils.createDatetime({ initialValue: date, dateFormat: 'YYYY-MM', onChange: onChangeFn });
 

@@ -1,11 +1,27 @@
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import moment from 'dayjs';
+import localeData from 'dayjs/plugin/localeData';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import badMutable from 'dayjs/plugin/badMutable';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
+import preParsePostFormat from 'dayjs/plugin/preParsePostFormat';
+
 import React from 'react';
 import DaysView from './views/DaysView';
 import MonthsView from './views/MonthsView';
 import YearsView from './views/YearsView';
 import TimeView from './views/TimeView';
 import onClickOutside from 'react-onclickoutside';
+
+moment.extend(localeData);
+moment.extend(localizedFormat);
+moment.extend(utc);
+moment.extend(timezone);
+moment.extend(badMutable);
+moment.extend(dayOfYear);
+moment.extend(preParsePostFormat);
 
 const viewModes = {
 	YEARS: 'years',
@@ -230,9 +246,9 @@ export default class Datetime extends React.Component {
 	}
 
 	getInitialDate() {
-		let m = this.localMoment();
+		let m = this.localMoment(Date.now());
 		if (!this.props.timeFormat) {
-			m.hour(0).minute(0).second(0).millisecond(0);
+			m = m.hour(0).minute(0).second(0).millisecond(0);
 		}
 		return m;
 	}
@@ -402,7 +418,7 @@ export default class Datetime extends React.Component {
 		let viewDate = this.state.viewDate.clone();
 
 		// Subtracting is just adding negative time
-		viewDate.add( modifier, unit );
+		viewDate = viewDate.add( modifier, unit );
 
 		if ( modifier > 0 ) {
 			this.props.onNavigateForward( modifier, unit );
@@ -533,6 +549,8 @@ export default class Datetime extends React.Component {
 		}
 
 		this.checkTZ();
+		console.log('thisProps:', thisProps);
+
 	}
 
 	componentWillUnmount() {
@@ -573,6 +591,7 @@ export default class Datetime extends React.Component {
 		if ( this.props.value === undefined ) return this.state.selectedDate;
 		let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
 		return selectedDate && selectedDate.isValid() ? selectedDate : false;
+		console.log('selectedDate:', selectedDate);
 	}
 
 	getInitialInputValue( selectedDate ) {
@@ -639,6 +658,7 @@ export default class Datetime extends React.Component {
 		if ( !this.callHandler( this.props.inputProps.onChange, e ) ) return;
 
 		const value = e.target ? e.target.value : e;
+		console.log('value:', value);
 		const localMoment = this.localMoment( value, this.getFormat('datetime') );
 		let update = { inputValue: value };
 
