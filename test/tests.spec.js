@@ -1235,7 +1235,7 @@ describe('Datetime', () => {
 			});
 
 			it('when selecting month', () => {
-				const date = timezone.tz('2000-03-15T02:02:02.002Z', 'UTC'),
+				const date = moment.tz('2000-03-15T02:02:02.002Z', 'UTC'),
 					onChangeFn = jest.fn(),
 					component = utils.createDatetime({ initialValue: date, dateFormat: 'YYYY-MM', onChange: onChangeFn });
 
