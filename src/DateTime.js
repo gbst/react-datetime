@@ -1,14 +1,12 @@
 import PropTypes from 'prop-types';
 import moment from 'dayjs';
-import 'dayjs/locale/nl';
-import 'dayjs/locale/sv';
+
 import localeData from 'dayjs/plugin/localeData';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import badMutable from 'dayjs/plugin/badMutable';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import React from 'react';
 import DaysView from './views/DaysView';
@@ -23,8 +21,6 @@ moment.extend(utc);
 moment.extend(timezone);
 moment.extend(badMutable);
 moment.extend(dayOfYear);
-moment.extend(customParseFormat);
-moment.locale('en');
 
 const viewModes = {
 	YEARS: 'years',
