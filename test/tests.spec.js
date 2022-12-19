@@ -2,8 +2,8 @@
 
 import React from 'react';
 import moment from 'dayjs';
-import 'dayjs/locale/nl';
-import 'dayjs/locale/sv';
+// import 'dayjs/locale/nl';
+// import 'dayjs/locale/sv';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import localeData from 'dayjs/plugin/localeData';
@@ -15,13 +15,12 @@ import utils from './testUtils';
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
-// moment.locale('en');
-
 moment.extend(utc);
 moment.extend(timezone);
 moment.extend(localeData);
 moment.extend(localizedFormat);
 moment.extend(updateLocale);
+moment.locale('en');
 
 Enzyme.configure({ adapter: new Adapter() });
 

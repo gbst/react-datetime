@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types';
 import moment from 'dayjs';
+import 'dayjs/locale/nl';
+import 'dayjs/locale/sv';
 import localeData from 'dayjs/plugin/localeData';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import badMutable from 'dayjs/plugin/badMutable';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
-import preParsePostFormat from 'dayjs/plugin/preParsePostFormat';
 
 import React from 'react';
 import DaysView from './views/DaysView';
@@ -21,7 +22,7 @@ moment.extend(utc);
 moment.extend(timezone);
 moment.extend(badMutable);
 moment.extend(dayOfYear);
-moment.extend(preParsePostFormat);
+moment.locale('en');
 
 const viewModes = {
 	YEARS: 'years',
@@ -591,7 +592,6 @@ export default class Datetime extends React.Component {
 		if ( this.props.value === undefined ) return this.state.selectedDate;
 		let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
 		return selectedDate && selectedDate.isValid() ? selectedDate : false;
-		console.log('selectedDate:', selectedDate);
 	}
 
 	getInitialInputValue( selectedDate ) {
