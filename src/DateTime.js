@@ -8,6 +8,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import badMutable from 'dayjs/plugin/badMutable';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import React from 'react';
 import DaysView from './views/DaysView';
@@ -22,6 +23,7 @@ moment.extend(utc);
 moment.extend(timezone);
 moment.extend(badMutable);
 moment.extend(dayOfYear);
+moment.extend(customParseFormat);
 moment.locale('en');
 
 const viewModes = {
