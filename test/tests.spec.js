@@ -1381,7 +1381,7 @@ describe('Datetime', () => {
 				momentDate = moment(date),
 				momentDateTZ = moment.tz(date, displayTimeZone),
 				strDateTZ = momentDateTZ.format('L') + ' ' + momentDateTZ.format('LT'),
-				component = utils.createDatetime({ value: momentDate, displayTimeZone: displayTimeZone });
+				component = utils.createDatetime({ value: momentDate.tz(displayTimeZone) });
 			expect(utils.getInputValue(component)).toEqual(strDateTZ);
 		});
 
@@ -1391,7 +1391,7 @@ describe('Datetime', () => {
 				momentDateUTC = moment.utc(date),
 				momentDateTZ = moment.tz(date, displayTimeZone),
 				strDateTZ = momentDateTZ.format('L') + ' ' + momentDateTZ.format('LT'),
-				component = utils.createDatetime({ value: momentDateUTC, displayTimeZone: displayTimeZone });
+				component = utils.createDatetime({ value: momentDateUTC.tz(displayTimeZone)});
 			expect(utils.getInputValue(component)).toEqual(strDateTZ);
 		});
 

@@ -104,8 +104,8 @@ Different language and date formats are supported by react-datetime. React uses 
 Don't forget to import your locale file from the moment's `moment/locale` folder.
 
 ```js
-import moment from 'moment';
-import 'moment/locale/fr';
+import moment from 'dayjs';
+import 'dayjs/locale/fr';
 // Now react-datetime will be in french
 ```
 
@@ -257,7 +257,7 @@ It is possible to disable dates in the calendar if the user are not allowed to s
 In the example below are *all dates before today* disabled.
 
 ```js
-import moment from 'moment';
+import moment from 'dayjs';
 var yesterday = moment().subtract( 1, 'day' );
 var valid = function( current ){
     return current.isAfter( yesterday );
