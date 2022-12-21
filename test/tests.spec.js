@@ -10,6 +10,7 @@ import localeData from 'dayjs/plugin/localeData';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import objectSupport from 'dayjs/plugin/objectSupport';
 
 import utils from './testUtils';
 import Enzyme from 'enzyme';
@@ -21,6 +22,7 @@ dayjs.extend(localeData);
 dayjs.extend(localizedFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(customParseFormat);
+dayjs.extend(objectSupport);
 
 dayjs.locale('en');
 
@@ -1419,7 +1421,7 @@ describe('Datetime', () => {
 		});
 
 		it('invalid dayjs object', (done) => {
-			const invalidValue = dayjs(null),
+			const invalidValue = null,
 				date = new Date(2000, 0, 15, 2, 2, 2, 2),
 				mDate = dayjs(date),
 				strDate = mDate.format('L') + ' ' + mDate.format('LT'),
