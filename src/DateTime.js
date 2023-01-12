@@ -5,8 +5,9 @@ import localeData from 'dayjs/plugin/localeData';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import badMutable from 'dayjs/plugin/badMutable';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import duration from 'dayjs/plugin/duration';
 
 import React from 'react';
 import DaysView from './views/DaysView';
@@ -19,8 +20,9 @@ moment.extend(localeData);
 moment.extend(localizedFormat);
 moment.extend(utc);
 moment.extend(timezone);
-moment.extend(badMutable);
 moment.extend(dayOfYear);
+moment.extend(customParseFormat);
+moment.extend(duration);
 
 const viewModes = {
 	YEARS: 'years',
@@ -87,7 +89,7 @@ export default class Datetime extends React.Component {
 		inputProps: {},
 		timeConstraints: {},
 		isValidDate: function() { return true; },
-		strictParsing: true,
+		strictParsing: false,
 		closeOnSelect: false,
 		closeOnTab: true,
 		closeOnClickOutside: true,
@@ -380,18 +382,18 @@ export default class Datetime extends React.Component {
 		let viewDate = this.state.viewDate.clone();
 
 		// Set the value into day/month/year
-		viewDate[ this.viewToMethod[currentView] ](
+		viewDate = viewDate[ this.viewToMethod[currentView] ](
 			parseInt( e.target.getAttribute('data-value'), 10 )
 		);
 
 		// Need to set month and year will for days view (prev/next month)
 		if ( currentView === 'days' ) {
-			viewDate.month( parseInt( e.target.getAttribute('data-month'), 10 ) );
-			viewDate.year( parseInt( e.target.getAttribute('data-year'), 10 ) );
+			viewDate = viewDate.month( parseInt( e.target.getAttribute('data-month'), 10 ) );
+			viewDate = viewDate.year( parseInt( e.target.getAttribute('data-year'), 10 ) );
 		}
 
 		// Set the value into day/month/year
-		viewDate[ this.viewToMethod[currentView] ](
+		viewDate = viewDate[ this.viewToMethod[currentView] ](
 			parseInt( e.target.getAttribute('data-value'), 10 )
 		);
 
@@ -502,7 +504,7 @@ export default class Datetime extends React.Component {
 		}
 
 		if ( props.locale )
-			m.locale( props.locale );
+			m = m.locale( props.locale );
 		return m;
 	}
 
@@ -548,7 +550,6 @@ export default class Datetime extends React.Component {
 		}
 
 		this.checkTZ();
-		console.log('thisProps:', thisProps);
 
 	}
 
@@ -562,20 +563,26 @@ export default class Datetime extends React.Component {
 		let selectedDate = this.state.selectedDate && this.state.selectedDate.clone();
 
 		if ( props.locale ) {
-			viewDate.locale( props.locale );
-			selectedDate &&	selectedDate.locale( props.locale );
+			viewDate = viewDate.locale( props.locale );
+			if (selectedDate) {
+				selectedDate =	selectedDate.locale( props.locale );
+			}
 		}
 		if ( props.utc ) {
-			viewDate.utc();
-			selectedDate &&	selectedDate.utc();
+			viewDate = viewDate.utc();
+			if (selectedDate) {
+				selectedDate = selectedDate.utc();
+			}
 		}
 		else if ( props.displayTimeZone ) {
-			viewDate.tz( props.displayTimeZone );
-			selectedDate &&	selectedDate.tz( props.displayTimeZone );
+			viewDate = viewDate.tz( props.displayTimeZone );
+			if (selectedDate) {
+				selectedDate = selectedDate.tz( props.displayTimeZone );
+			}
 		}
 		else {
-			viewDate.locale();
-			selectedDate &&	selectedDate.locale();
+			viewDate.locale('en');
+			selectedDate &&	selectedDate.locale('en');
 		}
 
 		let update = { viewDate: viewDate, selectedDate: selectedDate};
