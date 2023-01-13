@@ -129,6 +129,8 @@ export default class Datetime extends React.Component {
 	}
 
 	render() {
+		console.log('gbst-react-datetime:', this.props.value instanceof moment);
+		console.log('dayjs.isDayjs(value)', moment.isDayjs(this.props.value));
 		return (
 			<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
 				{ this.renderInput() }
@@ -718,8 +720,6 @@ class ClickOutBase extends React.Component {
 	container = React.createRef();
 
 	render() {
-		console.log('gbst-react-datetime:', this.props.value instanceof moment);
-		console.log('dayjs.isDayjs(value)', moment.isDayjs(this.props.value));
 		return (
 			<div className={ this.props.className } ref={ this.container }>
 				{ this.props.children }
