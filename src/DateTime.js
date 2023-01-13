@@ -320,6 +320,8 @@ export default class Datetime extends React.Component {
 	}
 
 	getLocaleData() {
+		console.log('gbst-react-datetime:', this.props.value instanceof moment);
+
 		let p = this.props;
 		return this.localMoment( p.value || p.defaultValue || new Date() ).localeData();
 	}
