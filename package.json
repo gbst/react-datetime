@@ -37,7 +37,6 @@
   "author": "Javier Marquez",
   "license": "MIT",
   "peerDependencies": {
-    "dayjs": "^1.11.7",
     "react": "^16.5.0 || ^17.0.0"
   },
   "devDependencies": {
@@ -59,7 +58,6 @@
     "camelcase": "^5.3.1",
     "case-sensitive-paths-webpack-plugin": "2.2.0",
     "css-loader": "3.2.0",
-    "dayjs": "^1.11.7",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "enzyme": "^3.0.0",
@@ -113,7 +111,8 @@
     "workbox-webpack-plugin": "4.3.1"
   },
   "dependencies": {
-    "prop-types": "^15.5.7"
+    "prop-types": "^15.5.7",
+    "dayjs": "^1.11.7"
   },
   "pre-commit": [
     "notify-pre-commit-hook",
