@@ -320,8 +320,6 @@ export default class Datetime extends React.Component {
 	}
 
 	getLocaleData() {
-		console.log('gbst-react-datetime:', this.props.value instanceof moment);
-
 		let p = this.props;
 		return this.localMoment( p.value || p.defaultValue || new Date() ).localeData();
 	}
@@ -665,7 +663,7 @@ export default class Datetime extends React.Component {
 		if ( !this.callHandler( this.props.inputProps.onChange, e ) ) return;
 
 		const value = e.target ? e.target.value : e;
-		console.log('value:', value);
+
 		const localMoment = this.localMoment( value, this.getFormat('datetime') );
 		let update = { inputValue: value };
 
@@ -720,6 +718,8 @@ class ClickOutBase extends React.Component {
 	container = React.createRef();
 
 	render() {
+		console.log('gbst-react-datetime:', this.props.value instanceof moment);
+		console.log('dayjs.isDayjs(value)', moment.isDayjs(this.props.value));
 		return (
 			<div className={ this.props.className } ref={ this.container }>
 				{ this.props.children }
