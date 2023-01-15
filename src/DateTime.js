@@ -131,6 +131,7 @@ export default class Datetime extends React.Component {
 	render() {
 		console.log('gbst-react-datetime:', this.props.value instanceof moment);
 		console.log('dayjs.isDayjs(value)', moment.isDayjs(this.props.value));
+		console.log('typeof value gbst-react-datetime:', typeof this.props.value);
 		return (
 			<ClickableWrapper className={ this.getClassName() } onClickOut={ this._handleClickOutside }>
 				{ this.renderInput() }
