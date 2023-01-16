@@ -112,7 +112,7 @@
   },
   "dependencies": {
     "prop-types": "^15.5.7",
-    "dayjs": "^1.10.7"
+    "dayjs": "^1.11.7"
   },
   "pre-commit": [
     "notify-pre-commit-hook",
