@@ -436,8 +436,12 @@ export default class Datetime extends React.Component {
 
 	_setTime = ( type, value ) => {
 		let date = (this.getSelectedDate() || this.state.viewDate).clone();
+		console.log('date', date);
+		console.log('type', type);
+		console.log('value', value);
 
 		date = date[type](value);
+		console.log('date2', date);
 
 		if ( !this.props.value ) {
 			this.setState({
