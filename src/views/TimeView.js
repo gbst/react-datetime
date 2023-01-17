@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'dayjs';
 
 const timeConstraints = {
 	hours: {
@@ -210,13 +211,13 @@ export default class TimeView extends React.Component {
 	}
 
 	getTimeParts( date ) {
-		const hours = date.hour();
+		const hours = moment(date).hour();
 
 		return {
 			hours: pad( 'hours', hours ),
-			minutes: pad( 'minutes', date.minute() ),
-			seconds: pad( 'seconds', date.second() ),
-			milliseconds: pad('milliseconds', date.millisecond() ),
+			minutes: pad( 'minutes', moment(date).minute() ),
+			seconds: pad( 'seconds', moment(date).second() ),
+			milliseconds: pad('milliseconds', moment(date).millisecond() ),
 			ampm: hours < 12 ? 'am' : 'pm'
 		};
 	}
