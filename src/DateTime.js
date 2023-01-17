@@ -8,7 +8,7 @@ import timezone from 'dayjs/plugin/timezone';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import duration from 'dayjs/plugin/duration';
-import objectSupport from 'dayjs/plugin/objectSupport';
+import pluralGetSet from 'dayjs/plugin/pluralGetSet';
 
 import React from 'react';
 import DaysView from './views/DaysView';
@@ -24,7 +24,7 @@ moment.extend(timezone);
 moment.extend(dayOfYear);
 moment.extend(customParseFormat);
 moment.extend(duration);
-moment.extend(objectSupport);
+moment.extend(pluralGetSet);
 
 const viewModes = {
 	YEARS: 'years',
