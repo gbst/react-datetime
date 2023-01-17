@@ -8,6 +8,7 @@ import timezone from 'dayjs/plugin/timezone';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import duration from 'dayjs/plugin/duration';
+import objectSupport from 'dayjs/plugin/objectSupport';
 
 import React from 'react';
 import DaysView from './views/DaysView';
@@ -23,6 +24,7 @@ moment.extend(timezone);
 moment.extend(dayOfYear);
 moment.extend(customParseFormat);
 moment.extend(duration);
+moment.extend(objectSupport);
 
 const viewModes = {
 	YEARS: 'years',
@@ -434,13 +436,13 @@ export default class Datetime extends React.Component {
 		this.setState({viewDate});
 	}
 
-	_setTime = ( type, value ) => {
+	_setTime = ( type, value) => {
 		let date = (this.getSelectedDate() || this.state.viewDate).clone();
 		console.log('date', date);
 		console.log('type', type);
 		console.log('value', value);
 
-		date = date[type](value);
+		date[ type ]( value );
 		console.log('date2', date);
 
 		if ( !this.props.value ) {
