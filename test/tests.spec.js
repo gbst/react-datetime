@@ -355,6 +355,55 @@ describe('Datetime', () => {
 			expect(component.find('thead').length).toEqual(0);
 		});
 
+		it('dateFormat as array accepts inputs in multiple formats', () => {
+			const date = new Date(2020, 11, 31);
+			const mDate = moment(date);
+			const onChangeFn = jest.fn();
+
+			const component = utils.createDatetime({
+				dateFormat: ['DD/MM/YYYY', 'DDMMYYYY', 'DD-MM-YYYY'],
+				value: date,
+				onChange: onChangeFn,
+				timeFormat: false,
+			});
+			expect(utils.getInputValue(component)).toEqual(mDate.format('DD/MM/YYYY'));
+
+			component.find('.form-control').simulate('change', { target: { value: '15/07/1901' }});
+			const expectedDate1 = moment(new Date(1901, 6, 15));
+			expect(moment(expectedDate1).isSame(onChangeFn.mock.calls[0][0])).toBeTruthy();
+
+			component.find('.form-control').simulate('change', { target: { value: '19111920' }});
+			const expectedDate2 = moment(new Date(1920, 10, 19));
+			expect(moment(expectedDate2).isSame(onChangeFn.mock.calls[1][0])).toBeTruthy();
+
+			component.find('.form-control').simulate('change', { target: { value: '20-04-2019' }});
+			const expectedDate3 = moment(new Date(2019, 3, 20));
+			expect(moment(expectedDate3).isSame(onChangeFn.mock.calls[2][0])).toBeTruthy();
+		});
+
+		it('dateFormat as array displays in first format', () => {
+			const date = new Date(2020, 11, 31);
+			const mDate = moment(date);
+			const component = utils.createDatetime({
+				dateFormat: ['DD/MM/YYYY', 'DDMMYYYY', 'DD-MM-YYYY'],
+				value: date,
+				timeFormat: false,
+			});
+			expect(utils.getInputValue(component)).toEqual(mDate.format('DD/MM/YYYY'));
+
+			component.setProps({
+				value: '01012001',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('01/01/2001');
+
+			component.setProps({
+				value: '31-12-2020',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('31/12/2020');
+		});
+
 		it('timeFormat', () => {
 			const date = new Date(2000, 0, 15, 2, 2, 2, 2),
 				mDate = moment(date),

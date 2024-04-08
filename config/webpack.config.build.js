@@ -3,6 +3,12 @@ const path = require('path');
 
 const outputPath = path.join(__dirname, '../dist/');
 
+// fix 0308010C:digital envelope routines::unsupported
+// webpack 5.54+ fix this
+const crypto = require('crypto');
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
+
 const baseConfig = {
 	entry: ['./src/DateTime.js'],
 	mode: 'production',

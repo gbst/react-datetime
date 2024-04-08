@@ -36,13 +36,13 @@ export default class Datetime extends React.Component {
 		utc: TYPES.bool,
 		displayTimeZone: TYPES.string,
 		input: TYPES.bool,
-		dateFormat: TYPES.oneOfType([TYPES.string, TYPES.bool]),
+		dateFormat: TYPES.oneOfType([TYPES.string, TYPES.bool, TYPES.arrayOf(TYPES.string)]),
 		timeFormat: TYPES.oneOfType([TYPES.string, TYPES.bool]),
 		inputProps: TYPES.object,
 		timeConstraints: TYPES.object,
 		isValidDate: TYPES.func,
 		open: TYPES.bool,
-		strictParsing: TYPES.bool,
+		strictParsing: TYPES.bool,	
 		closeOnSelect: TYPES.bool,
 		closeOnTab: TYPES.bool,
 		renderView: TYPES.func,
@@ -197,8 +197,7 @@ export default class Datetime extends React.Component {
 
 	getInitialState() {
 		let props = this.props;
-		let inputFormat = this.getFormat('datetime');
-		let selectedDate = this.parseDate( props.value || props.initialValue, inputFormat );
+		let selectedDate = this.parseDate( props.value || props.initialValue );
 
 		this.checkTZ();
 
@@ -215,7 +214,7 @@ export default class Datetime extends React.Component {
 		const propDate = this.props.initialViewDate;
 		let viewDate;
 		if ( propDate ) {
-			viewDate = this.parseDate( propDate, this.getFormat('datetime') );
+			viewDate = this.parseDate( propDate );
 			if ( viewDate && viewDate.isValid() ) {
 				return viewDate;
 			}
@@ -242,18 +241,20 @@ export default class Datetime extends React.Component {
 		return dateFormat ? this.getUpdateOn( dateFormat ) : viewModes.TIME;
 	}
 
-	parseDate(date, dateFormat) {
-		let parsedDate;
-
-		if (date && typeof date === 'string')
-			parsedDate = this.localMoment(date, dateFormat);
-		else if (date)
-			parsedDate = this.localMoment(date);
-
-		if (parsedDate && !parsedDate.isValid())
-			parsedDate = null;
-
-		return parsedDate;
+	parseDate(value) {
+		if (typeof value === 'object') {
+			return this.localMoment(value);
+		}
+		const dateFormatsArray = Array.isArray(this.props.dateFormat) ? this.props.dateFormat : [this.props.dateFormat];
+		let localMoment;
+		dateFormatsArray.some((_, idx) => {
+			localMoment = this.localMoment( value, this.getFormat('datetime', idx) );
+			if (localMoment.isValid()) {
+				return true; // break
+			}
+			return false; // continue
+		});
+		return localMoment;
 	}
 
 	getClassName() {
@@ -307,9 +308,13 @@ export default class Datetime extends React.Component {
 		return this.localMoment( p.value || p.defaultValue || new Date() ).localeData();
 	}
 
-	getDateFormat() {
+	getDateFormat(arrayIndex = 0) {
 		const locale = this.getLocaleData();
 		let format = this.props.dateFormat;
+		const formatIsArray = Array.isArray(format);
+		if (formatIsArray) {
+			format = format[arrayIndex];
+		}
 		if ( format === true ) return locale.longDateFormat('L');
 		if ( format ) return format;
 		return '';
@@ -324,15 +329,15 @@ export default class Datetime extends React.Component {
 		return format || '';
 	}
 
-	getFormat( type ) {
+	getFormat( type, dateFormatArrayIndex = 0 ) {
 		if ( type === 'date' ) {
-			return this.getDateFormat();
+			return this.getDateFormat(dateFormatArrayIndex);
 		}
 		else if ( type === 'time' ) {
 			return this.getTimeFormat();
 		}
 
-		let dateFormat = this.getDateFormat();
+		let dateFormat = this.getDateFormat(dateFormatArrayIndex);
 		let timeFormat = this.getTimeFormat();
 		return dateFormat && timeFormat ? dateFormat + ' ' + timeFormat : (dateFormat || timeFormat );
 	}
@@ -571,7 +576,7 @@ export default class Datetime extends React.Component {
 
 	getSelectedDate() {
 		if ( this.props.value === undefined ) return this.state.selectedDate;
-		let selectedDate = this.parseDate( this.props.value, this.getFormat('datetime') );
+		let selectedDate = this.parseDate( this.props.value );
 		return selectedDate && selectedDate.isValid() ? selectedDate : false;
 	}
 
@@ -639,10 +644,10 @@ export default class Datetime extends React.Component {
 		if ( !this.callHandler( this.props.inputProps.onChange, e ) ) return;
 
 		const value = e.target ? e.target.value : e;
-		const localMoment = this.localMoment( value, this.getFormat('datetime') );
+		const localMoment = this.parseDate(value);
 		let update = { inputValue: value };
 
-		if ( localMoment.isValid() ) {
+		if ( localMoment && localMoment.isValid() ) {
 			update.selectedDate = localMoment;
 			update.viewDate = localMoment.clone();
 		}
@@ -654,7 +659,7 @@ export default class Datetime extends React.Component {
 		}
 
 		this.setState(update);
-		this.props.onChange(localMoment.isValid() ? localMoment : value);
+		this.props.onChange(localMoment && localMoment.isValid() ? localMoment : value);
 	}
 
 	_onInputKeyDown = e => {
