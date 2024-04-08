@@ -526,7 +526,7 @@ export default class Datetime extends React.Component {
 
 		if ( (thisProps.value || thisProps.value === '') && thisProps.value !== prevProps.value ) {
 			if (thisProps.value) {
-				this.setViewDate( thisProps.value );
+				this.setViewDate( this.parseDate(thisProps.value) );
 			} else {
 				this.setViewDate(this.getInitialViewDate());
 			}
