@@ -37,7 +37,7 @@ export default class Datetime extends React.Component {
 		displayTimeZone: TYPES.string,
 		input: TYPES.bool,
 		dateFormat: TYPES.oneOfType([TYPES.string, TYPES.bool, TYPES.arrayOf(TYPES.string)]),
-		timeFormat: TYPES.oneOfType([TYPES.string, TYPES.bool]),
+		timeFormat: TYPES.oneOfType([TYPES.string, TYPES.bool, TYPES.arrayOf(TYPES.string)]),
 		inputProps: TYPES.object,
 		timeConstraints: TYPES.object,
 		isValidDate: TYPES.func,
@@ -246,9 +246,16 @@ export default class Datetime extends React.Component {
 			return this.localMoment(value);
 		}
 		const dateFormatsArray = Array.isArray(this.props.dateFormat) ? this.props.dateFormat : [this.props.dateFormat];
+		const timeFormatsArray = Array.isArray(this.props.timeFormat) ? this.props.timeFormat : [this.props.timeFormat];
 		let localMoment;
-		dateFormatsArray.some((_, idx) => {
-			localMoment = this.localMoment( value, this.getFormat('datetime', idx) );
+		dateFormatsArray.some((_, dateIdx) => {
+			timeFormatsArray.some((_, timeIdx) => {
+				localMoment = this.localMoment( value, this.getFormat('datetime', dateIdx, timeIdx) );
+				if (localMoment.isValid()) {
+					return true; // break
+				}
+				return false; // continue
+			});
 			if (localMoment.isValid()) {
 				return true; // break
 			}
@@ -308,37 +315,41 @@ export default class Datetime extends React.Component {
 		return this.localMoment( p.value || p.defaultValue || new Date() ).localeData();
 	}
 
-	getDateFormat(arrayIndex = 0) {
+	getDateFormat(index = 0) {
 		const locale = this.getLocaleData();
 		let format = this.props.dateFormat;
 		const formatIsArray = Array.isArray(format);
 		if (formatIsArray) {
-			format = format[arrayIndex];
+			format = format[index];
 		}
 		if ( format === true ) return locale.longDateFormat('L');
 		if ( format ) return format;
 		return '';
 	}
 
-	getTimeFormat() {
+	getTimeFormat(index = 0) {
 		const locale = this.getLocaleData();
 		let format = this.props.timeFormat;
+		const formatIsArray = Array.isArray(format);
+		if (formatIsArray) {
+			format = format[index];
+		}
 		if ( format === true ) {
 			return locale.longDateFormat('LT');
 		}
 		return format || '';
 	}
 
-	getFormat( type, dateFormatArrayIndex = 0 ) {
+	getFormat( type, dateFormatIndex = 0, timeFormatIndex ) {
 		if ( type === 'date' ) {
-			return this.getDateFormat(dateFormatArrayIndex);
+			return this.getDateFormat(dateFormatIndex);
 		}
 		else if ( type === 'time' ) {
-			return this.getTimeFormat();
+			return this.getTimeFormat(timeFormatIndex);
 		}
 
-		let dateFormat = this.getDateFormat(dateFormatArrayIndex);
-		let timeFormat = this.getTimeFormat();
+		let dateFormat = this.getDateFormat(dateFormatIndex);
+		let timeFormat = this.getTimeFormat(timeFormatIndex);
 		return dateFormat && timeFormat ? dateFormat + ' ' + timeFormat : (dateFormat || timeFormat );
 	}
 
