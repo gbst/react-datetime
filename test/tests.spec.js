@@ -355,6 +355,53 @@ describe('Datetime', () => {
 			expect(component.find('thead').length).toEqual(0);
 		});
 
+		it('dateFormat as array accepts inputs in multiple formats', () => {
+			const date = new Date(2020, 11, 31);
+			const onChangeFn = jest.fn();
+
+			const component = utils.createDatetime({
+				dateFormat: ['DD/MM/YYYY', 'DDMMYYYY', 'DD-MM-YYYY'],
+				timeFormat: false,
+				value: date,
+				onChange: onChangeFn,
+			});
+			expect(utils.getInputValue(component)).toEqual('31/12/2020');
+
+			component.find('.form-control').simulate('change', { target: { value: '15/07/1901' }});
+			const expectedDate1 = moment(new Date(1901, 6, 15));
+			expect(moment(expectedDate1).isSame(onChangeFn.mock.calls[0][0])).toBeTruthy();
+
+			component.find('.form-control').simulate('change', { target: { value: '19111920' }});
+			const expectedDate2 = moment(new Date(1920, 10, 19));
+			expect(moment(expectedDate2).isSame(onChangeFn.mock.calls[1][0])).toBeTruthy();
+
+			component.find('.form-control').simulate('change', { target: { value: '20-04-2019' }});
+			const expectedDate3 = moment(new Date(2019, 3, 20));
+			expect(moment(expectedDate3).isSame(onChangeFn.mock.calls[2][0])).toBeTruthy();
+		});
+
+		it('dateFormat as array displays in first format', () => {
+			const date = new Date(2020, 11, 31);
+			const component = utils.createDatetime({
+				dateFormat: ['DD/MM/YYYY', 'DDMMYYYY', 'DD-MM-YYYY'],
+				timeFormat: false,
+				value: date,
+			});
+			expect(utils.getInputValue(component)).toEqual('31/12/2020');
+
+			component.setProps({
+				value: '01012001',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('01/01/2001');
+
+			component.setProps({
+				value: '31-12-2020',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('31/12/2020');
+		});
+
 		it('timeFormat', () => {
 			const date = new Date(2000, 0, 15, 2, 2, 2, 2),
 				mDate = moment(date),
@@ -374,6 +421,49 @@ describe('Datetime', () => {
 			expect(component.find('.timeToggle').length).toEqual(0);
 		});
 
+		it('timeFormat as array accepts inputs in multiple formats', () => {
+			const date = new Date(1900, 0, 0, 13, 30, 59);
+			const onChangeFn = jest.fn();
+
+			const component = utils.createDatetime({
+				dateFormat: false,
+				timeFormat: ['hh:mm:ss A', 'HHmmss'],
+				value: date,
+				onChange: onChangeFn,
+			});
+			expect(utils.getInputValue(component)).toEqual('01:30:59 PM');
+
+			component.find('.form-control').simulate('change', { target: { value: '03:15:01 P' }});
+			const expectedDate1 = moment().hour(15).minute(15).second(1).millisecond(0);
+			expect(moment(expectedDate1).isSame(onChangeFn.mock.calls[0][0])).toBeTruthy();
+
+			component.find('.form-control').simulate('change', { target: { value: '205959' }});
+			const expectedDate2 = moment().hour(20).minute(59).second(59).millisecond(0);
+			expect(moment(expectedDate2).isSame(onChangeFn.mock.calls[1][0])).toBeTruthy();
+		});
+
+		it('timeFormat as array displays in first format', () => {
+			const date = new Date(1900, 1, 1, 15, 30, 59);
+			const component = utils.createDatetime({
+				dateFormat: false,
+				timeFormat: ['hh:mm:ss A', 'HHmmss', 'HHmm'],
+				value: date,
+			});
+			expect(utils.getInputValue(component)).toEqual('03:30:59 PM');
+
+			component.setProps({
+				value: '052001',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('05:20:01 AM');
+
+			component.setProps({
+				value: '1330',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('01:30:00 PM');
+		});
+
 		it('timeFormat with lowercase \'am\'', () => {
 			const date = new Date(2000, 0, 15, 2, 2, 2, 2),
 				format = 'HH:mm:ss:SSS a',
@@ -386,6 +476,35 @@ describe('Datetime', () => {
 				format = 'HH:mm:ss:SSS A',
 				component = utils.createDatetime({ value: date, timeFormat: format });
 			expect(utils.getInputValue(component)).toEqual(expect.stringMatching('.*AM$'));
+		});
+
+		it('dateFormat and timeFormat array work when combined', () => {
+			const date = new Date(2020, 11, 31, 13, 30);
+			const onChangeFn = jest.fn();
+
+			const component = utils.createDatetime({
+				dateFormat: ['DD/MM/YYYY', 'YYYYMMDD'],
+				timeFormat: ['hh:mm A', 'HHmm'],
+				value: date,
+				onChange: onChangeFn,
+			});
+			expect(utils.getInputValue(component)).toEqual('31/12/2020 01:30 PM');
+
+			component.find('.form-control').simulate('change', { target: { value: '20190420 0123' }});
+			const expectedDate = moment(new Date(2019, 3, 20, 1, 23));
+			expect(moment(expectedDate).isSame(onChangeFn.mock.calls[0][0])).toBeTruthy();
+
+			component.setProps({
+				value: '01/01/2001 1111',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('01/01/2001 11:11 AM');
+
+			component.setProps({
+				value: '20020202 12:12 PM',
+			});
+			component.update();
+			expect(utils.getInputValue(component)).toEqual('02/02/2002 12:12 PM');
 		});
 
 		it('initialViewMode=years', () => {
