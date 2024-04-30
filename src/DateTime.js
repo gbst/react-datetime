@@ -42,7 +42,7 @@ export default class Datetime extends React.Component {
 		timeConstraints: TYPES.object,
 		isValidDate: TYPES.func,
 		open: TYPES.bool,
-		strictParsing: TYPES.bool,	
+		strictParsing: TYPES.bool,
 		closeOnSelect: TYPES.bool,
 		closeOnTab: TYPES.bool,
 		renderView: TYPES.func,
@@ -52,6 +52,7 @@ export default class Datetime extends React.Component {
 		renderYear: TYPES.func,
 		renderPicker: TYPES.func,
 		renderCalendarWithOwnClickable: TYPES.bool,
+		regexProp: TYPES.instanceOf(RegExp),
 	}
 
 	static defaultProps = {
@@ -123,13 +124,22 @@ export default class Datetime extends React.Component {
 	renderInput() {
 		if ( !this.props.input ) return;
 
+		const regexProp = this.props.regexProp;
+
 		const finalInputProps = {
 			type: 'text',
 			className: 'form-control',
 			value: this.getInputValue(),
 			...this.props.inputProps,
 			onFocus: this._onInputFocus,
-			onChange: this._onInputChange,
+			onChange: (e) => {
+				// Validate input based on regexProp
+				const inputValue = e.target.value;
+				if (!regexProp || regexProp.test(inputValue)) {
+					// Input is valid, update state
+					this._onInputChange(e);
+				}
+			},
 			onKeyDown: this._onInputKeyDown,
 			onClick: this._onInputClick,
 		};
