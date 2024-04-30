@@ -134,7 +134,7 @@ export default class Datetime extends React.Component {
 			value: this.getInputValue(),
 			...this.props.inputProps,
 			onFocus: this._onInputFocus,
-			onChange:this._onInputChange,
+			onChange: this._onInputChange,
 			onKeyDown: this._onInputKeyDown,
 			onClick: this._onInputClick,
 		};
@@ -657,18 +657,20 @@ export default class Datetime extends React.Component {
 	}
 
 	_onInputChange = e => {
-		const inputValue = e.target.value;
-		const { inputRegex } = this.props;
+		if (this.props.inputRegex) {
+			const inputValue = e.target.value;
+			const { inputRegex } = this.props;
 
-		// Convert inputRegex to an array if it's not already an array
-		const regexArray = Array.isArray(inputRegex) ? inputRegex : [inputRegex];
+			// Convert inputRegex to an array if it's not already an array
+			const regexArray = Array.isArray(inputRegex) ? inputRegex : [inputRegex];
 
-		// Check if any of the regex in the array matches the input value
-		const isValid = regexArray.some(regex => regex.test(inputValue));
+			// Check if any of the regex in the array matches the input value
+			const isValid = regexArray.some(regex => regex.test(inputValue));
 
-		// If validation fails, return early
-		if (!isValid) {
-			return;
+			// If validation fails, return early
+			if (!isValid) {
+				return;
+			}
 		}
 
 		if ( !this.callHandler( this.props.inputProps.onChange, e ) ) return;
