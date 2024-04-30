@@ -134,25 +134,7 @@ export default class Datetime extends React.Component {
 			value: this.getInputValue(),
 			...this.props.inputProps,
 			onFocus: this._onInputFocus,
-			onChange: (e) => {
-				// Validate input based on inputRegex array
-				const inputValue = e.target.value;
-				const { inputRegex } = this.props;
-
-				// Check if inputRegex is an array
-				if (Array.isArray(inputRegex)) {
-					// Iterate over each regex in the array
-					const isValid = inputRegex.some(regex => regex.test(inputValue));
-					if (isValid) {
-						// Input is valid, update state
-						this._onInputChange(e);
-					}
-				} else if (!inputRegex || inputRegex.test(inputValue)) {
-					// If inputRegex is not an array, or if it's a single regex
-					// and the input value matches it, update state
-					this._onInputChange(e);
-				}
-			},
+			onChange:this._onInputChange,
 			onKeyDown: this._onInputKeyDown,
 			onClick: this._onInputClick,
 		};
@@ -675,6 +657,20 @@ export default class Datetime extends React.Component {
 	}
 
 	_onInputChange = e => {
+		const inputValue = e.target.value;
+		const { inputRegex } = this.props;
+
+		// Convert inputRegex to an array if it's not already an array
+		const regexArray = Array.isArray(inputRegex) ? inputRegex : [inputRegex];
+
+		// Check if any of the regex in the array matches the input value
+		const isValid = regexArray.some(regex => regex.test(inputValue));
+
+		// If validation fails, return early
+		if (!isValid) {
+			return;
+		}
+
 		if ( !this.callHandler( this.props.inputProps.onChange, e ) ) return;
 
 		const value = e.target ? e.target.value : e;
