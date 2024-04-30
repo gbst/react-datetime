@@ -83,6 +83,7 @@ export default class Datetime extends React.Component {
 		renderView: ( _, renderFunc ) => renderFunc(),
 		renderPicker: (renderFunc) => renderFunc(),
 		renderCalendarWithOwnClickable: false,
+		inputRegex: undefined,
 	}
 
 	// Make moment accessible through the Datetime class
