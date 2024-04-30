@@ -52,7 +52,10 @@ export default class Datetime extends React.Component {
 		renderYear: TYPES.func,
 		renderPicker: TYPES.func,
 		renderCalendarWithOwnClickable: TYPES.bool,
-		regexProp: TYPES.instanceOf(RegExp),
+		inputRegex: TYPES.oneOfType([
+			TYPES.instanceOf(RegExp),
+			TYPES.arrayOf(TYPES.instanceOf(RegExp))
+		]),
 	}
 
 	static defaultProps = {
@@ -124,8 +127,6 @@ export default class Datetime extends React.Component {
 	renderInput() {
 		if ( !this.props.input ) return;
 
-		const regexProp = this.props.regexProp;
-
 		const finalInputProps = {
 			type: 'text',
 			className: 'form-control',
@@ -133,10 +134,21 @@ export default class Datetime extends React.Component {
 			...this.props.inputProps,
 			onFocus: this._onInputFocus,
 			onChange: (e) => {
-				// Validate input based on regexProp
+				// Validate input based on inputRegex array
 				const inputValue = e.target.value;
-				if (!regexProp || regexProp.test(inputValue)) {
-					// Input is valid, update state
+				const { inputRegex } = this.props;
+
+				// Check if inputRegex is an array
+				if (Array.isArray(inputRegex)) {
+					// Iterate over each regex in the array
+					const isValid = inputRegex.some(regex => regex.test(inputValue));
+					if (isValid) {
+						// Input is valid, update state
+						this._onInputChange(e);
+					}
+				} else if (!inputRegex || inputRegex.test(inputValue)) {
+					// If inputRegex is not an array, or if it's a single regex
+					// and the input value matches it, update state
 					this._onInputChange(e);
 				}
 			},
