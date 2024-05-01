@@ -442,6 +442,81 @@ describe('Datetime', () => {
 			expect(moment(expectedDate2).isSame(onChangeFn.mock.calls[1][0])).toBeTruthy();
 		});
 
+		it('inputRegex as single regex', () => {
+			const component = utils.createDatetime({
+				dateFormat: false,
+				timeFormat: ['HH:mm:ss', 'HHmmss'],
+				inputRegex: /^\d{0,2}:?\d{0,2}:?\d{0,2}$/,
+			});
+
+			const input = component.find('input');
+
+			input.simulate('change', { target: { value: '151000' } });
+			expect(utils.getInputValue(component)).toEqual('15:10:00');
+
+			input.simulate('change', { target: { value: ''}});
+			expect(utils.getInputValue(component)).toEqual('');
+
+			input.simulate('change', { target: { value: 'abc'}});
+			expect(utils.getInputValue(component)).toEqual('');
+		});
+
+		it('inputRegex as array with a single regex', () => {
+			const component = utils.createDatetime({
+				dateFormat: false,
+				timeFormat: ['HH:mm:ss', 'HHmmss'],
+				inputRegex: [/^\d{0,2}:?\d{0,2}:?\d{0,2}$/],
+			});
+
+			const input = component.find('input');
+
+			input.simulate('change', { target: { value: '151000' } });
+			expect(utils.getInputValue(component)).toEqual('15:10:00');
+
+			input.simulate('change', { target: { value: ''}});
+			expect(utils.getInputValue(component)).toEqual('');
+
+			input.simulate('change', { target: { value: 'abc'}});
+			expect(utils.getInputValue(component)).toEqual('');
+		});
+
+		it('inputRegex as array with two regex', () => {
+			const component = utils.createDatetime({
+				dateFormat: false,
+				timeFormat: ['HH:mm:ss', 'HHmmss'],
+				inputRegex: [
+					/^\d{0,2}:?\d{0,2}:?\d{0,2}$/,
+					/^1?[abc]?$/
+				],
+			});
+
+			const input = component.find('input');
+
+			input.simulate('change', { target: { value: '151000' } });
+			expect(utils.getInputValue(component)).toEqual('15:10:00');
+
+			input.simulate('change', { target: { value: ''}});
+			expect(utils.getInputValue(component)).toEqual('');
+
+			input.simulate('change', { target: { value: '1a'}});
+			expect(utils.getInputValue(component)).toEqual('1a');
+
+			input.simulate('change', { target: { value: '1c'}});
+			expect(utils.getInputValue(component)).toEqual('1c');
+			// Resetting input to empty value
+			input.simulate('change', { target: { value: ''}});
+			expect(utils.getInputValue(component)).toEqual('');
+
+			input.simulate('change', { target: { value: '1d'}});
+			expect(utils.getInputValue(component)).toEqual('');
+
+			input.simulate('change', { target: { value: '2t'}});
+			expect(utils.getInputValue(component)).toEqual('');
+
+			input.simulate('change', { target: { value: '225g'}});
+			expect(utils.getInputValue(component)).toEqual('');
+		});
+
 		it('timeFormat as array displays in first format', () => {
 			const date = new Date(1900, 1, 1, 15, 30, 59);
 			const component = utils.createDatetime({

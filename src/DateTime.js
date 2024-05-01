@@ -42,7 +42,7 @@ export default class Datetime extends React.Component {
 		timeConstraints: TYPES.object,
 		isValidDate: TYPES.func,
 		open: TYPES.bool,
-		strictParsing: TYPES.bool,	
+		strictParsing: TYPES.bool,
 		closeOnSelect: TYPES.bool,
 		closeOnTab: TYPES.bool,
 		renderView: TYPES.func,
@@ -52,6 +52,10 @@ export default class Datetime extends React.Component {
 		renderYear: TYPES.func,
 		renderPicker: TYPES.func,
 		renderCalendarWithOwnClickable: TYPES.bool,
+		inputRegex: TYPES.oneOfType([
+			TYPES.instanceOf(RegExp),
+			TYPES.arrayOf(TYPES.instanceOf(RegExp))
+		]),
 	}
 
 	static defaultProps = {
@@ -79,6 +83,7 @@ export default class Datetime extends React.Component {
 		renderView: ( _, renderFunc ) => renderFunc(),
 		renderPicker: (renderFunc) => renderFunc(),
 		renderCalendarWithOwnClickable: false,
+		inputRegex: undefined,
 	}
 
 	// Make moment accessible through the Datetime class
@@ -652,6 +657,22 @@ export default class Datetime extends React.Component {
 	}
 
 	_onInputChange = e => {
+		if (this.props.inputRegex) {
+			const inputValue = e.target.value;
+			const { inputRegex } = this.props;
+
+			// Convert inputRegex to an array if it's not already an array
+			const regexArray = Array.isArray(inputRegex) ? inputRegex : [inputRegex];
+
+			// Check if any of the regex in the array matches the input value
+			const isValid = regexArray.some(regex => regex.test(inputValue));
+
+			// If validation fails, return early
+			if (!isValid) {
+				return;
+			}
+		}
+
 		if ( !this.callHandler( this.props.inputProps.onChange, e ) ) return;
 
 		const value = e.target ? e.target.value : e;
