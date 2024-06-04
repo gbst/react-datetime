@@ -2,6 +2,10 @@ import React from 'react';
 import ViewNavigation from '../parts/ViewNavigation';
 
 export default class MonthsView extends React.Component {
+	static defaultProps = {
+    	monthFormat: 'long', // 기본 값을 'long'으로 설정
+	};
+	
 	render() {
 		return (
 			<div className="rdtMonths">
@@ -103,12 +107,14 @@ export default class MonthsView extends React.Component {
 	}
 
 	getMonthText( month ) {
-		const localMoment = this.props.viewDate;
-		const monthStr = localMoment.localeData().monthsShort( localMoment.month( month ) );
+    	const { monthFormat } = this.props;
+    	const localMoment = this.props.viewDate;
+    	const monthStr = monthFormat === 'short' 
+    		? localMoment.localeData().monthsShort( localMoment.month( month ) ) 
+    		: localMoment.localeData().months( localMoment.month( month ) );
 
-		// Because some months are up to 5 characters long, we want to
-		// use a fixed string length for consistency
-		return capitalize( monthStr.substring( 0, 3 ) );
+    	// Use a fixed string length for consistency when in 'short' mode
+    	return monthFormat === 'short' ? capitalize( monthStr.substring( 0, 3 ) ) : capitalize(monthStr);
 	}
 
 	_updateSelectedMonth = event => {

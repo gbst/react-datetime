@@ -56,6 +56,7 @@ export default class Datetime extends React.Component {
 			TYPES.instanceOf(RegExp),
 			TYPES.arrayOf(TYPES.instanceOf(RegExp))
 		]),
+		monthFormat: TYPES.oneOf(['short', 'long']), // Add PropType
 	}
 
 	static defaultProps = {
@@ -84,6 +85,7 @@ export default class Datetime extends React.Component {
 		renderPicker: (renderFunc) => renderFunc(),
 		renderCalendarWithOwnClickable: false,
 		inputRegex: undefined,
+		monthFormat: 'long', // add Default props
 	}
 
 	// Make moment accessible through the Datetime class
@@ -167,7 +169,8 @@ export default class Datetime extends React.Component {
 			updateDate: this._updateDate,
 			navigate: this._viewNavigate,
 			moment: moment,
-			showView: this._showView
+			showView: this._showView,
+			monthFormat: props.monthFormat // monthFormat prop 추가
 		};
 
 		// Probably updateOn, updateSelectedDate and setDate can be merged in the same method
